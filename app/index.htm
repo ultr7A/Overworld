@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<!-- manifest='overworld.appcache' -->
+
+<head>
+    <meta id='meta-viewport' name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 " />
+    <title>Explore | Overworld</title>
+    <meta name='theme-color' content='rgb(71, 20, 137)'>
+    <link rel="icon" type="image/png" href="graphics/purple-square.png">
+    <link href='https://fonts.googleapis.com/css?family=Advent+Pro:500' rel='stylesheet' type='text/css'>
+    <link href="css/main.css" rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/codemirror.css">
+    <!--	<script src="js/three/three.js"></script>-->
+    <script src="lib/three/three.min.js"></script>
+    <script src="lib/three/ShaderExtras.js"></script>
+    <script src="lib/three/postprocessing/CopyShader.js"></script>
+    <!--	<script src="js/three/postprocessing/ConvolutionShader.js"></script>-->
+    <script src="lib/three/postprocessing/EffectComposer.js"></script>
+    <script src="lib/three/postprocessing/MaskPass.js"></script>
+    <script src="lib/three/postprocessing/RenderPass.js"></script>
+    <script src="lib/three/postprocessing/ShaderPass.js"></script>
+    <!--	<script src="js/three/postprocessing/BloomPass.js"></script>-->
+    <script src="lib/three/BokehShader.js"></script>
+    <script src="lib/three/csg.js"></script>
+    <script src="lib/three/ThreeCSG.js"></script>
+    <script src="lib/codemirror/codemirror.js"></script>
+    <script src="lib/codemirror/xml.js"></script>
+    <script src="lib/codemirror/javascript.js"></script>
+    <script src="lib/codemirror/css.js"></script>
+    <script src="lib/codemirror/vbscript.js"></script>
+    <script src="lib/codemirror/htmlmixed.js"></script>
+    <script src="lib/trackingjs/tracking.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.0.0.js"></script>
+    <script src="js/Overworld0.9.js"></script>
+    <script src="js/encrypt.js"></script>
+    <script type="x-shader/x-vertex" id="skyVertexShader">
+        #ifdef GL_ES
+        precision highp float;
+        #endif
+        varying vec2 vUv;
+        void main () {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fastSkyFragmentShader">
+        #ifdef GL_ES
+        precision highp float;
+        #endif uniform sampler2D tOne;
+        uniform sampler2D tSec;
+        varying vec2 vUv;
+        void main (void) {
+            vec2 texCoord = fract(vec2(vUv.x*6.0,vUv.y*3.0));
+            vec4 Ca = texture2D(tOne, texCoord) * sin(abs(0.5-vUv.y)*3.14);
+            vec4 Cb = texture2D(tSec, vUv); gl_FragColor= Ca + Cb;
+        }
+    </script>
+    <script type="x-shader/x-vertex" id="simpleUvVertexShader">
+        #ifdef GL_ES
+        precision highp float;
+        #endif
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="skyFragmentShader">
+        #ifdef GL_ES
+        precision mediump float;
+        #endif
+        varying vec2 vUv;
+        uniform float time;
+        uniform sampler2D tex;
+        uniform sampler2D tex2;
+        void main( void ) {
+            float dayTime = 0.93;
+            float blue = sin(3.14159265359*dayTime)*0.66;
+            float green = blue/3.0;
+            float red = blue*(cos(3.14159265359*dayTime)*cos(3.14159265359*dayTime))/1.5;
+            vec4 color = vec4(red/*+0.2*(1.0-abs(vUv.y))*/, green , blue*0.5+vUv.y*0.4 , 1.0); //3.141592654
+            float cloudOpacity = 0.0;
+            cloudOpacity = sin(dayTime*3.14159265359)*0.8*sin(time*0.006+vUv.y/2.0) - (sin(vUv.y*1.5707963267948966)*sin(vUv.y*3.14159265359));
+            if (vUv.y < 0.13) {
+                cloudOpacity *= ( vUv.y/0.13);
+            } else if (vUv.y > 0.87) {
+                cloudOpacity *= 1.0-((vUv.y-0.87)/0.13);
+            }
+            vec4 cloudColor = texture2D(tex,vUv);
+            color += cloudColor * cloudOpacity*0.85;
+            color /=0.1+cloudColor-cloudOpacity; //texture2D(tex,vUv) - cloudOpacity;
+            color += texture2D(tex2,fract(vec2(vUv.x*5.0,vUv.y*2.5))) * sin(abs(0.5-vUv.y)*/*6.283185307*/ 3.14 );
+            //* (1.0-cloudOpacity);
+            gl_FragColor = color;
+        }
+    </script>
+    <script type="x-shader/x-vertex" id="hyperPanelVertexShader">
+        #ifdef GL_ES
+        precision highp float;
+        #endif
+        varying vec2 vUv;
+        void main () {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+        }
+    </script>
+
+    <script type="x-shader/x-fragment" id="hyperPanelFragmentShader">
+        #ifdef GL_ES
+        precision mediump float;
+        #endif
+        varying vec2 vUv;
+        uniform float red;
+        uniform float green;
+        uniform float blue;
+        void main ( void ) {
+            float color = sin(-3.14159*cos(vUv.x*6.28318)/(vUv.y/2.0));
+            //float color = sin(vUv.x/vUv.y)*37.699111843;
+            //float color = sin(-3.14159*cos(vUv.x*6.28318)/sin(vUv.y/2.0));
+            gl_FragColor = vec4( color*red,color*green,color*blue, 1.0 );
+        }
+    </script>
+</head>
+<body>
+    <div class='fill' id='lightBoxContainer'>
+        <div class='lightBox' id='lightBox' style='opacity:0;'>
+            <span style='float:left; position:relative; top:3px; left:3px;' id='lightBoxTitle'></span>
+            <input type='button' id='returnButton' value='Return' style='float:right;display:inline-block;font-size:130%;padding:2px;' onclick='lightBoxViewer.closeLightBox()' />
+            <select id='templateButton' onchange='handleTemplateChange(this)' style='margin-top:8px;margin-left:20px;display:none;'>
+                <option value="">Templates</option>
+                <option value='HTML'>HTML</option>
+            </select>
+            <input type='button' id='previewButton' value='Preview' style='float:right;display:none;font-size:130%;padding:2px;margin-right:50px;' onclick='lightBoxViewer.previewContent()' />
+            <div style='width:100%;height:100%;position:absolute;top:35px;' id='lightBoxContent'>
+            </div>
+        </div>
+    </div>
+    <div class="selectedAction" id="selectedActionPanel">
+        <div class="selectedActionLabel" id="selectedActionLabel">
+            Current Tool:
+        </div>
+        <div class="selectedActionName" id="selectedActionName">
+            Place Object
+        </div>
+        Click to Enter Full Screen
+    </div>
+    <div class="menuPrompt" id="menuPromptPanel">
+        Press Escape to Show Menu
+    </div>
+    <div id='leftPanel' class="leftPanelActive" style="display:none;">
+        <div style="text-align:center;">
+            <table id="kineticPanel">
+                <tr>
+                    <td colspan="2">
+                        Position:
+                        <span style="right:0;">
+						<span style="background-color:#000000;color:#FF0000;width:15px;height:15px;margin-left:60px;" onclick="kineticPanel.close()">X</span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span style="color:#FFC000;">X</span>
+                    </td>
+                    <td id="positionx">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span style="color:#FFC000;">Y</span>
+                    </td>
+                    <td id="positiony">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span style="color:#FFC000;">Z</span>
+                    </td>
+                    <td id="positionz">
+                    </td>
+                </tr>
+                <tr>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="actionPanel" class="actionPanelActive" style="display:none;">
+        <div class="control-panel">
+            <table style='width:100%;'>
+                <tr>
+                    <td>
+                        <div style="float:left;display:inline-block;height:100%;width:45%;max-width:167px;font-size:200%;padding-left:8px;">
+                            Current Tool:
+                        </div>
+                        <div id="toolSettingsTitle" style="float:left;display:inline-block;height:100%;width:41%;max-width:173px;font-size:200%;">
+                            Place Object
+                        </div>
+                        <input type="button" onclick="observer.switchTool(-1)" value="Previous (c)">
+                        <input type="button" onclick="observer.switchTool(1)" value="Next (v)">
+                        <input type="text" id="nullInput" style="width:0px;height:0px;display:none;">
+                    </td>
+                    <td>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div style="float:left;display:inline-block;height:100%;width:50%; margin-top:2.5%;">
+                            Name:
+                            <input type="textfield" size="8" id="objectNameTextbox" value="objectName" style="width:70%;">
+                        </div>
+                        <div style="float:left;display:inline-block;height:100%;width:45%;">
+                            <button style='padding: 2%;font-size: 200%;position: relative;right: -31px;top: -3px;width: 174px;float:right;' onclick='exitMenu()'>
+                                Exit Menu
+                                <br/><i style='font-size:50%;'>(escape key)</i>
+                            </button>
+                            <input id="helpButton" type="button" value="help" >
+                            <!--<input type="button" onclick="observer.modifyObject()" value="Modify" id="modifyButton">-->
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Shape:
+                        <select id="objectShapeSelect">
+                            <option value="box">Box</option>
+                            <option value="plane">Plane</option>
+                            <option value="sphere">Sphere</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Material:
+                        <select id="objectMaterialSelect">
+                            <option value="plastic">Plastic</option>
+                            <option value="glass">Glass</option>
+                            <option value="hyperPanel">Metal</option>
+                            <option value="rock2">Rock</option>
+                            <option value="colorCircuit">Color Circuit</option>
+                            <option value="colorFlow">Color Flow</option>
+                            <option value="rainbowCircuit">Rainbow Circuit</option>
+                            <option value="wireFrame">WireFrame</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <table style='width:100%;'>
+                            <tbody>
+                                <tr>
+                                    <td style='text-align:center;'>Red</td>
+                                    <td id="redSlider" class="sliderContainer">
+
+                                    </td>
+                                    <td style='text-align:center;'>SizeX</td>
+                                    <td style="margin:0px;" id="xSlider" class="sliderContainer">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='text-align:center;'>Green</td>
+                                    <td id="greenSlider" class="sliderContainer">
+                                    </td>
+                                    <td style="margin:0px;text-align:center;">SizeY</td>
+                                    <td id="ySlider" class="sliderContainer">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='text-align:center;'>Blue</td>
+                                    <td id="blueSlider" class="sliderContainer">
+                                    </td>
+                                    <td style='text-align:center;'>SizeZ</td>
+                                    <td style="margin:0px;" id="zSlider" class="sliderContainer">
+                                    </td>
+                                </tr>
+                        </table>
+                        <table style='width:100%;'>
+                            <tr>
+                                <td>
+                                    Text:
+                                    <textarea id="objectTextTextbox" onclick='textEdit()' style="margin-left:10px;width:84%;background-color:rgba(0,0,0,0.66);color:#ffffff;"></textarea>
+                                </td>
+                            </tr>
+                            <tr style="display:none;">
+                                <td>
+                                    Encryption Key:
+                                    <input type="password" id="objectKeyTextbox" style="width:44%;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Link:
+                                    <input type="text" id="objectLinkTextbox" style="margin-left:10px;width:79%;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Portal To World:
+                                    <select id="worldPortal" style="margin-left:10px;" disabled="disabled">
+                                        <option value="Select World">Select World</option>
+                                    </select>
+                                    or <a href="/overworld/app/create" target="_blank">Create a new world</a>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>File Upload:
+                                    <input type='file' id='fileUpload' />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="chat-container" style="display:inline-block; opacity:0;">
+        <div id="chat-messages">
+            <!--  style="display:none;" -->
+        </div>
+        <div id="chat-input-container">
+            <input type='text' id='chat-input' />
+            <input type='button' class='send-button' value='Send' onclick='gui.sendChat();' />
+            <input type='button' class='close-button' value='Close' onclick='gui.toggleChat(false);' />
+        </div>
+    </div>
+</body>
+
+</html>

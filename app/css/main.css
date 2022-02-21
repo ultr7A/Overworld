@@ -1,0 +1,409 @@
+	input {
+	    color: #000;
+	    padding: 8px;
+	}
+
+	input[type="button"] {
+	    color: rgba(0, 0, 0, 1.0);
+	    /*background-color:#000000;
+		border-color:#000022;*/
+	}
+
+	hr {
+	    clear: both;
+	}
+
+	h2 {
+	    margin: 1px;
+	}
+
+	canvas {
+	    -webkit-user-select: none;
+	    -moz-user-select: none;
+	    user-select: none;
+	    transition: filter 0.5s ease;
+	    -webkit-transition: -webkit-filter 0.5s ease;
+	    cursor: pointer;
+	}
+
+	body {
+	    background-color: #000000;
+	    margin: 0px;
+	    padding: 0px;
+	    overflow: hidden;
+	    position: absolute;
+	    width: 100%;
+	    height: 100%;
+	    color: #ffffff;
+	    text-shadow: rgba(0, 0, 0, 0.5) 1px 1px 1px;
+	    font-family: 'Advent Pro', sans-serif;
+	}
+
+    #helpButton {
+        float:left;
+        height: 88px;
+        padding: 2%;
+        width: 88px;
+        float:right;
+        font-size: 2em;
+    }
+
+	div.actionPanel {
+	    position: absolute;
+	    width: 100%;
+	    top: 0px;
+	    right: 0px;
+	    padding-right: 10px;
+	    /*background: linear-gradient(rgba(255,255,255,0.8), rgba(200,200,200,0.0));
+		background: -moz-linear-gradient(rgba(255,255,255,0.8), rgba(200,200,200,0.0));
+		background: -webkit-linear-gradient(rgba(255,255,255,0.8), rgba(200,200,200,0.0)); */
+	}
+
+	div.actionPanelActive {
+	    position: absolute;
+	    width: 100%;
+	    top: 2%;
+	    right: 0px;
+	    padding-right: 10px;
+	    /*background: linear-gradient(rgba(255,255,255,0.8), rgba(200,200,200,0.0));
+		background: -moz-linear-gradient(rgba(255,255,255,0.8), rgba(200,200,200,0.0));
+		background: -webkit-linear-gradient(rgba(255,255,255,0.8), rgba(200,200,200,0.0)); */
+	}
+
+	div.leftPanel {
+	    position: absolute;
+	    top: 0px;
+	    left: 0px;
+	    padding: 10px 10px;
+	    -webkit-transform: rotateY(3deg);
+	    -moz-transform: rotateY(3deg);
+	    transform: rotateY(3deg);
+	    background: rgba(0, 0, 0, 0.66);
+	    border-bottom-right-radius: 10px;
+	    z-index: 9999;
+	}
+
+	div.leftPanelActive {
+	    position: absolute;
+	    top: 0px;
+	    left: 0px;
+	    padding: 10px 10px;
+	    background: rgba(0, 0, 0, 0.66);
+	    border-bottom-right-radius: 10px;
+	    z-index: 9999;
+	}
+
+	#selectedActionPanel {
+	    position: absolute;
+	    top: 0px;
+	    left: 30px;
+	    text-align: center;
+	    width: 550px;
+	    height: 30px;
+	    border-bottom-left-radius: 10px;
+	    border-bottom-right-radius: 10px;
+	    background-color: rgba(0, 0, 0, 0.66);
+	    color: #ffffff;
+	    padding-top: 4px;
+	}
+
+	#rightMouseNotification {
+	    position: absolute;
+	    top: 0px;
+	    left: 30px;
+	    text-align: center;
+	    width: 255px;
+	    height: 30px;
+        background: rgba(0,0,0,0.66);
+	    border-bottom-left-radius: 10px;
+	    border-bottom-right-radius: 10px;
+	    background-color: rgba(0, 0, 0, 0.66);
+	    color: #ffffff;
+	    transition: opacity 1s ease;
+	    -moz-transition: opacity 1s ease;
+	    -webkit-transition: opacity 1s ease;
+	}
+
+	div.selectedActionLabel {
+	    width: 96px;
+	    height: 100%;
+	    float: left;
+	    display: inline-block;
+	}
+
+	div.selectedActionName {
+	    width: 110px;
+	    height: 100%;
+	    float: left;
+	    display: inline-block;
+	    text-align: left;
+	}
+
+	div.menuPrompt {
+	    position: absolute;
+	    top: 0px;
+	    right: 30px;
+	    text-align: center;
+	    width: 250px;
+	    height: 30px;
+	    border-bottom-left-radius: 10px;
+	    border-bottom-right-radius: 10px;
+	    background-color: rgba(0, 0, 0, 0.66);
+	    color: #ffffff;
+	    transition: opacity 1s ease;
+	    -moz-transition: opacity 1s ease;
+	    -webkit-transition: opacity 1s ease;
+	}
+
+	div.exitMenuPrompt {
+	    transition: opacity 1s ease;
+	    -moz-transition: opacity 1s ease;
+	    -webkit-transition: opacity 1s ease;
+	    position: absolute;
+	    top: 0px;
+	    text-align: center;
+	    right: 0px;
+	    width: 255px;
+	    height: 52px;
+	    border-bottom-left-radius: 10px;
+	    background-color: rgba(0, 0, 0, 0.66);
+	    font-size: 120%;
+	    color: #ffffff;
+	}
+
+	.sliderContainer {
+	    background-color: #333;
+	    border-radius: 3px;
+	}
+
+	.sliderBar {
+	    /*width:100%;*/
+
+	    width: 150px;
+	    height: 90%;
+	    background-color: rgba(255, 0, 255, 0.85);
+	}
+
+	.instructions {
+	    font-size: 120%;
+	    display: block;
+	    width: 58%;
+	    float: left;
+	    padding-left: 1em;
+	}
+
+	.controls {
+	    width: 40%;
+	    position: relative;
+	    float: right;
+	}
+
+	@keyframes fadeInstructions1 {
+	    0% {
+	        opacity: 1.0;
+	    }
+	    50% {
+	        opacity: 1.0;
+	    }
+	    75% {
+	        opacity: 0.1;
+	    }
+	    100% {
+	        opacity: 1.0;
+	    }
+	}
+
+	@-moz-keyframes fadeInstructions1 {
+	    0% {
+	        opacity: 1.0;
+	    }
+	    50% {
+	        opacity: 1.0;
+	    }
+	    75% {
+	        opacity: 0.1;
+	    }
+	    100% {
+	        opacity: 1.0;
+	    }
+	}
+
+	@-webkit-keyframes fadeInstructions1 {
+	    0% {
+	        opacity: 1.0;
+	    }
+	    50% {
+	        opacity: 1.0;
+	    }
+	    75% {
+	        opacity: 0.1;
+	    }
+	    100% {
+	        opacity: 1.0;
+	    }
+	}
+
+	@keyframes fadeInstructions2 {
+	    0% {
+	        opacity: 0.0;
+	    }
+	    50% {
+	        opacity: 0.0;
+	    }
+	    75% {
+	        opacity: 1.0;
+	    }
+	    100% {
+	        opacity: 0.0;
+	    }
+	}
+
+	@-moz-keyframes fadeInstructions2 {
+	    0% {
+	        opacity: 0.0;
+	    }
+	    50% {
+	        opacity: 0.0;
+	    }
+	    75% {
+	        opacity: 1.0;
+	    }
+	    100% {
+	        opacity: 0.0;
+	    }
+	}
+
+	@-webkit-keyframes fadeInstructions2 {
+	    0% {
+	        opacity: 0.0;
+	    }
+	    50% {
+	        opacity: 0.0;
+	    }
+	    75% {
+	        opacity: 1.0;
+	    }
+	    100% {
+	        opacity: 0.0;
+	    }
+	}
+
+	.selectedAction {
+	    transition: opacity 1s ease;
+	    -moz-transition: opacity 1s ease;
+	    -webkit-transition: opacity 1s ease;
+	}
+
+	.rightMouseNotification {
+	    /*-moz-animation:fadeInstructions2 8s infinite;
+				-webkit-animation:fadeInstructions2 8s infinite;
+				animation:fadeInstructions2 8s infinite; */
+	}
+
+	.fill {
+	    width: 100%;
+	    /* set height to window.innerHeight when displaying... set to 0 otherwise */
+	    position: absolute;
+	    z-index: 50;
+	    display: none;
+	}
+
+	.lightBox {
+	    width: 100%;
+	    height: 100%;
+	    background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.60));
+	    background: -moz-linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.60));
+	    background: -webkit-linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.60));
+	    margin-left: auto;
+	    margin-right: auto;
+	    -webkit-transition: opacity 1s ease;
+	    -moz-transition: opacity 1s ease;
+	    transition: opacity 1s ease;
+	}
+
+	.control-panel {
+	    width: 70%;
+	    background-color: rgba(0, 0, 0, 0.66);
+	    max-width: 1024px;
+	    min-width: 320px;
+	    position: relative;
+	    margin: auto;
+	    margin-top: 5%;
+	    border-radius: 10px;
+	    padding: 1%;
+	}
+
+	#chat-container {
+	    position: fixed;
+	    bottom: 0px;
+	    width: 100%;
+	    min-height: 40px;
+	    -webkit-transition: opacity 0.5s ease;
+	    -moz-transition: opacity 0.5s ease;
+	    transition: opacity 0.5s ease;
+	}
+
+	#chat-messages {
+	    width: 100%;
+	}
+
+	.chat-input-container {
+	    width: 100%;
+	    height: 40px;
+	}
+
+	#chat-input {
+	    display: inline-block;
+	    width: 78%;
+	    height: 15px;
+	}
+
+	.sendButton,
+	.closeButton {
+	    width: 10%;
+	}
+
+	.controlsTable td {
+	    padding: 1%;
+	    color: white;
+	}
+
+	.controlsTable {
+	    display: inline-block;
+	    position: relative;
+	    width: 100%;
+	    vertical-align: middle;
+	    margin-bottom: 30px;
+	}
+
+	.controlsTable td:nth-child(2n-1) {
+	    text-align: center;
+	    width: 5%;
+	}
+
+	.controlsTable td:nth-child(2n) {
+	    box-shadow: inset 0px 0px 50px rgba(255, 255, 255, 0.85);
+	    width: 10%;
+	}
+
+	.desktopFirstTimeButton {
+	    font-size: 200%;
+	    height: 80px;
+	    width: 200px;
+	    margin: auto;
+	    margin-top: 50px;
+	    display: inline-block;
+	}
+
+	#desktopFirstTimeImage {
+	    width: 100%;
+	}
+
+	#desktopFirstTimeMessage {
+	    display: none;
+	    position: fixed;
+	    width: 33%;
+	    height: 100%;
+	    text-align: center;
+	}
+
